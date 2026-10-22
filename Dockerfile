@@ -83,9 +83,19 @@ RUN rm -rf /usr/src/php-ext-simdjson
 # Install PECL if not already present and necessary build tools
 RUN apt-get install -y php-pear pkg-config libssl-dev
 
-# Upgrade MongoDB PHP extension to required version
+# Upgrade MongoDB PHP extension to required version (1.17.0).
+# Build from the PECL tarball with phpize — pecl channel lookup fails in CI with
+# "No releases available for package pecl.php.net/mongodb" even though 1.17.0 exists.
 RUN apt-get remove -y php8.2-mongodb
-RUN pecl install mongodb-1.17.0
+RUN curl -fsSL -o /tmp/mongodb.tgz https://pecl.php.net/get/mongodb-1.17.0.tgz \
+    && mkdir -p /tmp/mongodb \
+    && tar -xzf /tmp/mongodb.tgz -C /tmp/mongodb --strip-components=1 \
+    && cd /tmp/mongodb \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && rm -rf /tmp/mongodb /tmp/mongodb.tgz
 RUN echo "extension=mongodb.so" > /etc/php/8.2/cli/conf.d/20-mongodb.ini
 RUN echo "extension=mongodb.so" > /etc/php/8.2/fpm/conf.d/20-mongodb.ini
 
