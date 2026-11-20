@@ -4,7 +4,7 @@ RUN echo "Install PHP8 ..."
 RUN apt-get update
 RUN apt-get install -y lsb-release ca-certificates apt-transport-https software-properties-common -y
 RUN add-apt-repository ppa:ondrej/php
-# Refresh indexes after adding the PPA so php8.2 resolves to 8.2.35+ (EC-3647)
+# Refresh indexes after adding the PPA so php8.2 resolves to 8.2.36+ (EC-3647 / Nov 2026 advisories)
 RUN apt-get update
 RUN apt-get install -y php8.2
 RUN apt-get install -y \
@@ -102,8 +102,8 @@ RUN echo "extension=mongodb.so" > /etc/php/8.2/fpm/conf.d/20-mongodb.ini
 RUN echo "listing php modules ..."
 RUN php -m
 
-# EC-3647: final gate — patched runtime (CVE-2026-109618 / CVE-2026-109619)
-RUN php -r '$v = PHP_VERSION; if (version_compare($v, "8.2.35", "<")) { fwrite(STDERR, "PHP $v is below required 8.2.35 (EC-3647)\n"); exit(1);} echo "PHP version gate OK: $v\n";' \
+# EC-3647 + Nov 2026 PHP advisories: final gate — patched runtime (>= 8.2.36)
+RUN php -r '$v = PHP_VERSION; if (version_compare($v, "8.2.36", "<")) { fwrite(STDERR, "PHP $v is below required 8.2.36 (EC-3647)\n"); exit(1);} echo "PHP version gate OK: $v\n";' \
  && php-fpm8.2 -v \
  && php -i | grep -E '^session.upload_progress.enabled' \
  && php -r 'if (ini_get("session.upload_progress.enabled")) { fwrite(STDERR, "session.upload_progress.enabled must be Off (EC-3647)\n"); exit(1);} echo "session.upload_progress.enabled OK\n";'

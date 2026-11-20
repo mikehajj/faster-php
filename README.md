@@ -1,18 +1,18 @@
 # faster-php
 
-PHP 8.2.35+ (FPM + CLI), Composer, simdjson, and MongoDB PECL on top of `mikehajj/faster-nginx`.
+PHP 8.2.36+ (FPM + CLI), Composer, simdjson, and MongoDB PECL on top of `mikehajj/faster-nginx`.
 
 ### Base
 - `mikehajj/faster-nginx:latest`
 
 ### Stack
-- PHP: **8.2.35 or newer** (EC-3647 — CVE-2026-109618 / CVE-2026-109619)
+- PHP: **8.2.36 or newer** (EC-3647 + Nov 2026 PHP security release)
 - Composer (`/usr/local/bin/composer`)
 - simdjson (built from [crazyxman/simdjson_php](https://github.com/crazyxman/simdjson_php))
 - mongodb **1.17.0** via PECL (apt `php8.2-mongodb` is not used)
 
 ### Security / FPM hardening (EC-3647)
-- Build fails unless `php` / `php-fpm8.2` report version ≥ 8.2.35
+- Build fails unless `php` / `php-fpm8.2` report version ≥ 8.2.36
 - `session.upload_progress.enabled = Off` via `php/conf.d/99-ec3647-security.ini` (CLI + FPM)
 - Packaged `php.ini` is **not** overwritten (preserves ondrej `conf.d` extension loading)
 - FPM pool: `php/php-fpm.conf`, `php/www.conf`
