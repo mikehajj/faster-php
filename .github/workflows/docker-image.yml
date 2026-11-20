@@ -15,10 +15,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --tag mikehajj/faster-php:latest
+      run: |
+        docker build . \
+          --tag mikehajj/faster-php:latest \
+          --tag mikehajj/faster-php:noble \
+          --tag mikehajj/faster-php:24.04
     - name: Login to Docker
       run: docker login --username mikehajj --password $docker_pwd
       env: 
         docker_pwd: ${{ secrets.DOCKER_PWD }}
     - name: Push Image to Docker Hub
-      run: docker push mikehajj/faster-php:latest
+      if: github.event_name == 'push'
+      run: |
+        docker push mikehajj/faster-php:latest
+        docker push mikehajj/faster-php:noble
+        docker push mikehajj/faster-php:24.04
