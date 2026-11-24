@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "feature/EC-3750-php84" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -14,34 +14,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build PHP 8.2 image (main → :latest)
-      if: github.ref == 'refs/heads/main'
-      run: |
-        docker build . \
-          --tag mikehajj/faster-php:latest \
-          --tag mikehajj/faster-php:noble \
-          --tag mikehajj/faster-php:24.04
-    - name: Build PHP 8.4 image (EC-3750 → :8.4 only)
-      if: github.ref == 'refs/heads/feature/EC-3750-php84'
+    - name: Build image (tag = PHP major.minor only)
       run: |
         docker build . \
           --tag mikehajj/faster-php:8.4
-    - name: Build PR (no push)
-      if: github.event_name == 'pull_request'
-      run: |
-        docker build . --tag mikehajj/faster-php:pr
     - name: Login to Docker
       if: github.event_name == 'push'
       run: docker login --username mikehajj --password $docker_pwd
       env:
         docker_pwd: ${{ secrets.DOCKER_PWD }}
-    - name: Push PHP 8.2 tags (main only)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        docker push mikehajj/faster-php:latest
-        docker push mikehajj/faster-php:noble
-        docker push mikehajj/faster-php:24.04
-    - name: Push PHP 8.4 tag (feature branch only — never :latest)
-      if: github.event_name == 'push' && github.ref == 'refs/heads/feature/EC-3750-php84'
+    - name: Push PHP version tag only (never :latest / :noble / :24.04)
+      if: github.event_name == 'push'
       run: |
         docker push mikehajj/faster-php:8.4

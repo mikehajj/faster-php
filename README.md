@@ -20,7 +20,9 @@ PHP 8.4.28+ (FPM + CLI), Composer, simdjson, and MongoDB PECL on top of `mikehaj
 ### Consumer note
 App images that `COPY` their own `docker/php/www.conf` / `php.ini` over the base must keep the same `session.upload_progress` settings, or the FPM admin flag / drop-in will be replaced at app build time.
 
-Staging consumers should use `FROM mikehajj/faster-php:8.4`. Production stays on `mikehajj/faster-php:latest` (PHP **8.2**), which is built from `main` and is **not** overwritten by this 8.4 branch.
+Staging / PHP 8.4 consumers: `FROM mikehajj/faster-php:8.4`.
+
+Production stays on the existing Hub tag `mikehajj/faster-php:latest` (PHP **8.2**). CI on `main` publishes **only** `:8.4` and does **not** retag `:latest`, `:noble`, or `:24.04`.
 
 ### PHP packages (apt)
 bcmath, bz2, cli, common, curl, dba, fpm, gd, gmp, http, imap, intl, ldap, mbstring, memcache, memcached, msgpack, mysql, odbc, pgsql, readline, redis, soap, sqlite3, tidy, uploadprogress, xdebug, xml, yaml, zip, dev, raphf
@@ -33,15 +35,14 @@ bcmath, bz2, cli, common, curl, dba, fpm, gd, gmp, http, imap, intl, ldap, mbstr
 
 ### Image tags
 ```
-mikehajj/faster-php:8.4     # this branch (EC-3750) — PHP 8.4
-mikehajj/faster-php:latest  # main — PHP 8.2 (production)
+mikehajj/faster-php:8.4     # built from main (EC-3750) — PHP 8.4
+mikehajj/faster-php:latest  # frozen Hub tag — PHP 8.2 (production); not updated by this CI
 ```
 
 ### Build
-Build and push `faster-ubuntu` → `faster-nginx` first, then:
+Build and push `faster-ubuntu` → `faster-nginx` first. Prefer CI on `main` (publishes `:8.4` only). Local build only if the operator asks:
 
 ```bash
-# PHP 8.4 staging tag (this branch) — do NOT retag as :latest
 docker build -t mikehajj/faster-php:8.4 .
 docker push mikehajj/faster-php:8.4
 ```
